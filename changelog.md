@@ -4,7 +4,22 @@ In order to receive a regrade on this submission you **must** fully answer the f
 
 ## 1. Clearly list all changes you made from your last submission to this submission.
 
-
+### `index.js`
+- **Color map:** Replaced `d3.schemeTableau10` with a custom 12-color palette explicitly mapped via `.domain()` and `.range()`, ensuring every family has a unique, distinct color in both charts.
+- **Pie chart labels:** Removed the angle threshold that was hiding labels on small slices. Replaced inline centroid labels with an external leader-line system: all 12 family names are now displayed outside the pie with polyline connectors. Added a collision-resolution algorithm that spreads overlapping labels apart vertically so no two labels overlap.
+- **Pie chart interactivity:** Added highlight behavior to pie slices — clicking a slice dims all others to 30% opacity and keeps the selected slice fully visible. Clicking the same slice again resets all opacities. Info text clears back to default on deselect.
+- **Bar chart interactivity:** Extended click behavior to display an info message showing the selected family's name, language count, and percentage of the full dataset (e.g. "Indo-European: 14 languages (37.8% of dataset)"). Info text resets on deselect.
+### `index.html`
+- Wrapped each chart and its info text in a `<div class="chart-wrapper">` for layout and styling purposes.
+- Added `<p id="bar-info">Click a bar to see details.</p>` beneath the bar chart.
+- Updated page `<title>` and `<h1>` from "Language Families" to "World Language Families by Speaker Count".
+### `style.css`
+- Switched font to Inter (via Google Fonts) for a cleaner, more modern look.
+- Changed background from a flat color to a subtle linear gradient.
+- Styled the `h1` as a white card with rounded corners and a drop shadow.
+- Added `.chart-wrapper` layout so each chart and its info badge sit together as a unit.
+- Styled `#bar-info` and `#pie-info` as matching white badge elements with padding, border-radius, and box-shadow.
+- Softened axis line colors and added `cursor: pointer` and `transition: opacity` to interactive elements.
 
 ## 2. Reflect on your experience prioritizing, working on, and completing this assignment. Moving forward, what changes will you make in these areas to work towards better first submissions of assignments? 
 
