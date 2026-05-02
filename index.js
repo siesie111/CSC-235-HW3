@@ -365,7 +365,13 @@ frame.append("g")
     .call(d3.axisLeft(yScale).ticks(5));
 
 // bars
-let highlighted = null;
+let barColors = [
+    "#4e79a7", "#f28e2b", "#59a14f", "#e15759",
+    "#76b7b2", "#edc948", "#b07aa1", "#ff9da7",
+    "#9c755f", "#bab0ac", "#d37295", "#a0cbe8"
+];
+let barColour = d3.scaleOrdinal().domain(barData.map(d => d.family)).range(barColors);
+let highlightedBar = null;
 
 frame.selectAll("rect")
     .data(barData)
@@ -374,24 +380,26 @@ frame.selectAll("rect")
     .attr("y", d => yScale(d.count))
     .attr("width", xScale.bandwidth())
     .attr("height", d => (height - margin) - yScale(d.count))
-    .attr("fill", "mediumseagreen")
+    .attr("fill", d => barColour(d.family))
     .on("click", function(event, d) {
-        if (highlighted === d.family) {
-            // click again to un-highlight
-            d3.selectAll("rect").attr("fill", "mediumseagreen").attr("opacity", 1);
-            highlighted = null;
+        if (highlightedBar === d.family) {
+            d3.selectAll("rect").attr("opacity", 1);
+            highlightedBar = null;
+            d3.select("#bar-info").text("Click a bar to see details.");
         } else {
-            d3.selectAll("rect").attr("fill", "mediumseagreen").attr("opacity", 0.4);
-            d3.select(this).attr("fill", "coral").attr("opacity", 1);
-            highlighted = d.family;
+            d3.selectAll("rect").attr("opacity", 0.3);
+            d3.select(this).attr("opacity", 1);
+            highlightedBar = d.family;
+            let pct = ((d.count / d3.sum(barData, x => x.count)) * 100).toFixed(1);
+            d3.select("#bar-info").text(d.family + ": " + d.count + " languages (" + pct + "% of dataset)");
         }
     });
 
 
 // pie chart
-let pieWidth  = 400;
-let pieHeight = 400;
-let pieRadius = 150;
+let pieWidth  = 600;
+let pieHeight = 450;
+let pieRadius = 140;
 
 let pieSvg = d3.select("#pie-chart")
                 .append("svg")
@@ -408,13 +416,23 @@ pieSvg.append("text")
     .style("font-weight", "bold")
     .text("Proportion of Languages per Family");
 
-let colour = d3.scaleOrdinal(d3.schemeTableau10);
+// 12 visually distinct colors, one per family
+let distinctColors = [
+    "#4e79a7", "#f28e2b", "#59a14f", "#e15759",
+    "#76b7b2", "#edc948", "#b07aa1", "#ff9da7",
+    "#9c755f", "#bab0ac", "#d37295", "#a0cbe8"
+];
+let colour = d3.scaleOrdinal().domain(barData.map(d => d.family)).range(distinctColors);
+
 let pie = d3.pie().value(d => d.count);
 let arc = d3.arc().innerRadius(0).outerRadius(pieRadius);
+let outerArc = d3.arc().innerRadius(pieRadius * 1.1).outerRadius(pieRadius * 1.1);
 let total = d3.sum(barData, d => d.count);
 
 // slices
-pieSvg.selectAll("path")
+let highlightedSlice = null;
+
+let slices = pieSvg.selectAll("path")
     .data(pie(barData))
     .join("path")
     .attr("d", arc)
@@ -422,31 +440,61 @@ pieSvg.selectAll("path")
     .attr("stroke", "white")
     .style("stroke-width", "1px")
     .on("click", function(event, d) {
-        let pct = ((d.data.count / total) * 100).toFixed(1);
-        d3.select("#pie-info")
-            .text(d.data.family + ": " + pct + "% (" + d.data.count + " languages)");
+        if (highlightedSlice === d.data.family) {
+            slices.attr("opacity", 1);
+            highlightedSlice = null;
+            d3.select("#pie-info").text("Click a slice to see details.");
+        } else {
+            slices.attr("opacity", 0.3);
+            d3.select(this).attr("opacity", 1);
+            highlightedSlice = d.data.family;
+            let pct = ((d.data.count / total) * 100).toFixed(1);
+            d3.select("#pie-info").text(d.data.family + ": " + pct + "% (" + d.data.count + " languages)");
+        }
     });
 
-// slice labels 
+// leader lines + labels with collision resolution
+let labelData = pie(barData);
+const LINE_HEIGHT = 14;
+
+let labels = labelData.map(d => {
+    let midAngle = (d.startAngle + d.endAngle) / 2;
+    let outerPt  = outerArc.centroid(d);
+    let xEnd     = (pieRadius * 1.38) * (midAngle < Math.PI ? 1 : -1);
+    return { d, midAngle, outerPt, xEnd, y: outerPt[1], side: midAngle < Math.PI ? "right" : "left" };
+});
+
+["right", "left"].forEach(side => {
+    let group = labels.filter(l => l.side === side).sort((a, b) => a.y - b.y);
+    for (let i = 1; i < group.length; i++) {
+        if (group[i].y - group[i-1].y < LINE_HEIGHT) group[i].y = group[i-1].y + LINE_HEIGHT;
+    }
+    let maxY = pieHeight / 2 - 6;
+    if (group.length && group[group.length-1].y > maxY) {
+        let shift = group[group.length-1].y - maxY;
+        group.forEach(l => l.y -= shift);
+    }
+    for (let i = 1; i < group.length; i++) {
+        if (group[i].y - group[i-1].y < LINE_HEIGHT) group[i].y = group[i-1].y + LINE_HEIGHT;
+    }
+});
+
+pieSvg.selectAll("polyline.leader")
+    .data(labels)
+    .join("polyline")
+    .attr("class", "leader")
+    .attr("points", l => [arc.centroid(l.d), l.outerPt, [l.xEnd, l.y]])
+    .style("fill", "none")
+    .style("stroke", "#888")
+    .style("stroke-width", "0.8px");
+
 pieSvg.selectAll("text.label")
-    .data(pie(barData))
+    .data(labels)
     .join("text")
     .attr("class", "label")
-    .attr("transform", d => "translate(" + arc.centroid(d) + ")")
-    .attr("text-anchor", "middle")
-    .style("font-size", "11px")
-    .style("fill", "white")
-    .style("display", d => (d.endAngle - d.startAngle > 0.8) ? null : "none")
-    .text(d => d.data.family);
-
-
-
-
-
-
-
-
-
-
-
-
+    .attr("transform", l => `translate(${l.xEnd + (l.side === "right" ? 3 : -3)}, ${l.y})`)
+    .attr("text-anchor", l => l.side === "right" ? "start" : "end")
+    .attr("dominant-baseline", "middle")
+    .style("font-size", "10px")
+    .style("fill", "#333")
+    .text(l => l.d.data.family);

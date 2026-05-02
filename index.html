@@ -2,18 +2,23 @@
 <html>
 <head>
     <link rel="stylesheet" href="style.css">
-    <title>hw3 - Language Families</title>
+    <title>World Language Families by Speaker Count</title>
     <script src="d3.v7.min.js"></script>
     <meta charset="UTF-8">
 </head>
 <body>
 
-    <h1>Language Families</h1>
+    <h1>World Language Families by Speaker Count</h1>
 
-    <div id="bar-chart"></div>
+    <div class="chart-wrapper">
+        <div id="bar-chart"></div>
+        <p id="bar-info">Click a bar to see details.</p>
+    </div>
 
-    <div id="pie-chart"></div>
-    <p id="pie-info">Click a slice to see details.</p>
+    <div class="chart-wrapper">
+        <div id="pie-chart"></div>
+        <p id="pie-info">Click a slice to see details.</p>
+    </div>
 
     <script src="index.js"></script>
 

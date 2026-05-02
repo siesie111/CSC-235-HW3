@@ -1,26 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 body {
-  font-family: Arial;
-  margin: 40px;
-  background-color: #dff9fd;
-  max-width: 1400px;
+  font-family: 'Inter', Arial, sans-serif;
+  margin: 0;
+  padding: 30px 40px 60px;
+  background: linear-gradient(135deg, #e8f4f8 0%, #d6eef5 100%);
+  min-height: 100vh;
+  box-sizing: border-box;
   text-align: center;
 }
 
 h1 {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 26px;
+  font-weight: 700;
   text-align: center;
-  background-color: rgb(70, 180, 147);
-  color: rgb(0, 0, 0);
-  padding: 15px;
+  color: #1a3c4e;
+  margin: 0 auto 32px;
+  padding: 18px 32px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  max-width: 700px;
+  letter-spacing: 0.3px;
 }
 
-#pie-info {
-  font-size: 16px;
-  margin-top: 10px;
-  color: #333;
+.chart-wrapper {
+  display: inline-block;
+  vertical-align: top;
+  margin: 10px 16px;
+}
+
+#bar-chart, #pie-chart {
+  display: block;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  padding: 16px 20px;
+}
+
+#bar-info, #pie-info {
+  font-size: 14px;
+  margin: 10px auto 0;
+  color: #1a3c4e;
+  background: white;
+  display: block;
+  padding: 9px 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.07);
+  font-weight: 500;
+  min-height: 38px;
+  line-height: 1.4;
 }
 
 .axis text {
-  font-size: 12px;
+  font-size: 11px;
+  fill: #555;
+}
+
+.axis path, .axis line {
+  stroke: #ccc;
+}
+
+svg text {
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+rect {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+path {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
 }
