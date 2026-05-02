@@ -1,0 +1,26 @@
+body {
+  font-family: Arial;
+  margin: 40px;
+  background-color: #dff9fd;
+  max-width: 1400px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  background-color: rgb(70, 180, 147);
+  color: rgb(0, 0, 0);
+  padding: 15px;
+}
+
+#pie-info {
+  font-size: 16px;
+  margin-top: 10px;
+  color: #333;
+}
+
+.axis text {
+  font-size: 12px;
+}
